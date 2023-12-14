@@ -13,10 +13,12 @@
     display: grid;
     grid-template-columns: var(--sidebar-item-height) 1fr;
     gap: .5em;
-    padding: 4px 8px;
+    padding: .25em .5em;
 
-    border-top: 1px solid var(--color-border-dark);
-    border-bottom: 1px solid var(--color-border-dark-3);
+
+    &:not(:last-of-type) {
+      border-bottom: 1px groove var(--zh-clr-bg2);
+    }
 
     &:first-child {
       border-top: none;

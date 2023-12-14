@@ -3,7 +3,21 @@
     "partytab": {
       "title": "Party",
       "addToParty": "Add to Party",
-      "removeFromParty": "Remove from Party"
+      "removeFromParty": "Remove from Party",
+      "distribute": {
+        "rp": "Distribute RP",
+        "corruption": "Distribute Corruption",
+        "amount": "Amount",
+        "all": "Distribute to Everyone",
+        "empty": {
+          "selection": "Can't distribute without selecting party members",
+          "value": "Can't distribute zero to selected party members"
+        },
+        "success": {
+          "rp": "Successfully distributed Reward Points",
+          "corruption": "Successfully distributed Corruption"
+        }
+      }
     }
   }
 }

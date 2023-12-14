@@ -20,6 +20,7 @@ const prepareHandlebars = async () => {
 
   const templates = await loadTemplates([
     `${templatePath}/party.hbs`,
+    `${templatePath}/distribute.hbs`,
     `${partialPath}/chip.hbs`
   ]);
 }

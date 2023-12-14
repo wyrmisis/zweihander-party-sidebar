@@ -1,5 +1,6 @@
 import prepareHandlebars from "../config/handlebars.mjs";
 import PartySidebar from "../sheets/PartySidebar.mjs";
+import { isInParty, addToParty, removeFromParty } from '../helpers/party-membership.mjs';
 
 Hooks.once('init', async function() {
   libWrapper.register(
@@ -7,16 +8,16 @@ Hooks.once('init', async function() {
     'ActorDirectory.prototype._getEntryContextOptions',
     (wrapped, ...args) =>
       [{
-        name: 'zweihander.partytab.addToParty',
+        name: 'ZWEI.partytab.addToParty',
         icon: '<i class="fas fa-users-medical"></i>',
-        condition: (node) => PartySidebar.isInParty(node.data('entry-id')) === false,
-        callback: (node) => game.user.isGM && PartySidebar.addToParty(node.data('entry-id'))
+        condition: (node) => game.user.isGM && isInParty(node.data('entry-id')) === false,
+        callback: (node) => game.user.isGM && addToParty(node.data('entry-id'))
       },
       {
-        name: 'zweihander.partytab.removeFromParty',
+        name: 'ZWEI.partytab.removeFromParty',
         icon: '<i class="fa-light fa-users"></i>',
-        condition: (node) => PartySidebar.isInParty(node.data('entry-id')) === true,
-        callback: (node) => game.user.isGM && PartySidebar.removeFromParty(node.data('entry-id'))
+        condition: (node) => game.user.isGM && isInParty(node.data('entry-id')) === true,
+        callback: (node) => game.user.isGM && removeFromParty(node.data('entry-id'))
       },
       ...wrapped(...args)],
   );

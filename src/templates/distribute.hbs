@@ -1,0 +1,23 @@
+<section class="distribute__body" id="{{cssId}}">
+	<header class="distribute__amount">
+		{{localize 'ZWEI.partytab.distribute.amount'}}
+		<input name="amount" type="number" data-dtype="Number" value="0" />
+		<button data-action="distribute-all" data-tooltip="ZWEI.partytab.distribute.all">
+			<i class="ra ra-double-team"></i>
+		</button>
+	</header>
+	<ul class="distribute__party">
+		{{#each party}}
+		<li class="distribute__party__item">
+			<input type="checkbox" name="selected" value="{{id}}" id="distribute-{{id}}" />
+			<label for="distribute-{{id}}">
+				<img src="{{img}}" alt="" />
+			</label>
+			<label for="distribute-{{id}}">{{name}}</label>
+		</li>
+		{{/each}}
+	</ul>
+	<footer>
+		<button type="submit" data-action="submit">Distribute</button>
+	</footer>
+</section>

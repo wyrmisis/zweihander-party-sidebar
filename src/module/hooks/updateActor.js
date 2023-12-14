@@ -1,3 +1,5 @@
+import PartySidebar from '../sheets/PartySidebar.mjs';
+
 /**
  * If everything checks out, rerender the sidebar UI to account for party member updates.
  * 
@@ -14,9 +16,13 @@ const conditionallyRenderSidebar = (doc) => {
     doc?.documentName === 'Actor' &&
     doc.getFlag(game.system.id, 'party')
   ) ui.sidebar.render();
+
+  if (PartySidebar.DistributeRPApp.rendered) PartySidebar.DistributeRPApp.render();
+  if (PartySidebar.DistributeCorruptionApp.rendered) PartySidebar.DistributeCorruptionApp.render();
 }
 
+Hooks.on('createActor', conditionallyRenderSidebar);
 Hooks.on('updateActor', conditionallyRenderSidebar);
-Hooks.on('createItem',  conditionallyRenderSidebar);
-Hooks.on('updateItem',  conditionallyRenderSidebar);
-Hooks.on('deleteItem',  conditionallyRenderSidebar);
+Hooks.on('createItem', conditionallyRenderSidebar);
+Hooks.on('updateItem', conditionallyRenderSidebar);
+Hooks.on('deleteItem', conditionallyRenderSidebar);

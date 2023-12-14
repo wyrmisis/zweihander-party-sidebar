@@ -5,6 +5,16 @@
       font-size: .9em;
     }
   </style>
+  {{#if user.isGM}}
+  <header class="party-header">
+    <div class="header-actions action-buttons flexrow">
+      <button type="button" data-action="add-rp"><i class="fas fa-plus"></i> {{localize
+        "ZWEI.partytab.distribute.rp"}}</button>
+      <button type="button" data-action="add-corruption"><i class="fas fa-plus"></i> {{localize
+        "ZWEI.partytab.distribute.corruption"}}</button>
+    </div>
+  </header>
+  {{/if}}
   {{#if party.length}}
   <ul class="party-list">
     {{#each party}}
@@ -14,7 +24,6 @@
       <section>
         <header class="party-list__item__header">
           <h4 class="entry-name document-name">{{name}}</h4>
-          {{log 'PARTYTAB' system}}
           <div class="party-meter party-meter--damage">
             <i class="fas fa-heart"></i>
             {{#with system.stats.secondaryAttributes.damageCurrent}}

@@ -1,4 +1,7 @@
 import { templatePath } from "../config/constants.mjs";
+import { isInParty, addToParty, removeFromParty } from '../helpers/party-membership.mjs';
+import DistributeRP from './DistributeRP.mjs';
+import DistributeCorruption from './DistributeCorruption.mjs';
 
 export default class PartySidebar extends SidebarTab {
   /** @override */
@@ -8,47 +11,16 @@ export default class PartySidebar extends SidebarTab {
       template: `${templatePath}/party.hbs`,
       title: "ZWEI.partytab.title",
       dragDrop: [{ dragSelector: ".party-list__item", dropSelector: ".party-list" }],
-      // filters: [{inputSelector: 'input[name="search"]', contentSelector: ".directory-list"}],
       contextMenuSelector: ".party-list__item",
     });
   }
 
+  static DistributeRPApp = new DistributeRP();
+  static DistributeCorruptionApp = new DistributeCorruption();
+
   static tooltip = "ZWEI.partytab.title";
   static icon = "fas fa-users";
 
-  static lookupActor(actor) {
-    let actorObj = (typeof actor === 'string')
-      ? game.actors.get(actor)
-      : actor;
-    return (actorObj?.type !== "character")
-      ? null
-      : actorObj;
-  }
-
-  static isInParty(actor) {
-    const actorObj = PartySidebar.lookupActor(actor);
-    return (!actorObj)
-      ? false
-      : !!actorObj.getFlag(game.system.id, "party");
-  }
-
-  static async addToParty(actor) {
-    actor = PartySidebar.lookupActor(actor);
-    await actor?.setFlag(game.system.id, "party", true);
-    ui.sidebar.render();
-  }
-
-  static async removeFromParty(actor) {
-    actor = PartySidebar.lookupActor(actor);
-    await actor?.setFlag(game.system.id, "party", false);
-    ui.sidebar.render();
-  }
-
-
-  static async grantItemToPartyMember(actor, item) {
-    actor = PartySidebar.lookupActor(actor);
-    await actor?.createEmbeddedDocuments('Item', item);
-  }
 
   /** @override */
   async getData(options = {}) {
@@ -85,7 +57,7 @@ export default class PartySidebar extends SidebarTab {
       if (
         doc &&
         doc.documentName === 'Actor' &&
-        !PartySidebar.isInParty(doc.id)
+        !isInParty(doc.id)
       ) {
         doc.setFlag(game.system.id, 'party', true);
         return true;
@@ -142,11 +114,15 @@ export default class PartySidebar extends SidebarTab {
   /**
    * @todo - This app needs built
    */
-  #openRPApp() { }
+  #openRPApp() {
+    PartySidebar.DistributeRPApp.render(true);
+  }
   /**
    * @todo - This app needs built
    */
-  #openCorruptionApp() { }
+  #openCorruptionApp() {
+    PartySidebar.DistributeCorruptionApp.render(true);
+  }
 
   #openPartyMemberSheet(event) {
     const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
@@ -194,17 +170,14 @@ export default class PartySidebar extends SidebarTab {
   }
 
   /**
-   * @todo - Listener for "Distribute RP"
-   * @todo - Listener for "Distrbute Treasure"
-   * 
-   * 
+   * @todo Set up for non-GM use
    * @override
    * */
   activateListeners(html) {
     super.activateListeners(html);
 
-    html.find(".add-rp").click(this.#openRPApp.bind(this));
-    // html.find(".add-rp").click(this.#openRPApp.bind(this));
+    html.find("[data-action='add-rp']").click(this.#openRPApp.bind(this));
+    html.find("[data-action='add-corruption']").click(this.#openCorruptionApp.bind(this));
     html.find('.thumbnail, .entry-name').click(
       this.#openPartyMemberSheet.bind(this)
     );
@@ -230,10 +203,10 @@ export default class PartySidebar extends SidebarTab {
 
     return [
       {
-        name: 'UFT.partytab.removeFromParty',
+        name: 'ZWEI.partytab.removeFromParty',
         icon: '<i class="fa-light fa-users"></i>',
-        condition: (node) => PartySidebar.isInParty(node.data('entry-id')) === true,
-        callback: (node) => game.user.isGM && PartySidebar.removeFromParty(node.data('entry-id'))
+        condition: (node) => game.user.isGM && isInParty(node.data('entry-id')) === true,
+        callback: (node) => game.user.isGM && removeFromParty(node.data('entry-id'))
       }
     ]
   }
