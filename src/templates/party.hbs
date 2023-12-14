@@ -1,0 +1,143 @@
+<section class="{{cssClass}}" id="{{cssId}}" data-tab="{{tabName}}">
+  <style>
+    #sidebar nav a {
+      --sidebar-tab-width: 22px;
+      font-size: .9em;
+    }
+  </style>
+  {{#if party.length}}
+  <ul class="party-list">
+    {{#each party}}
+    <li class="party-list__item" data-entry-id="{{id}}">
+      <img src="{{img}}" class="thumbnail" alt="" />
+
+      <section>
+        <header class="party-list__item__header">
+          <h4 class="entry-name document-name">{{name}}</h4>
+          {{log 'PARTYTAB' system}}
+          <div class="party-meter party-meter--damage">
+            <i class="fas fa-heart"></i>
+            {{#with system.stats.secondaryAttributes.damageCurrent}}
+            <ul class="party-meter__tracker" data-tooltip="ZWEI.actor.secondary.damage">
+              <li data-step="5"
+                class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="4"
+                class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="3"
+                class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="2"
+                class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="1"
+                class="party-meter__tracker-item{{#if (gte value 1)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="0"
+                class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+            </ul>
+            {{/with}}
+            {{#with system.stats.secondaryAttributes.damageThreshold}}
+            <ul class="party-meter__threshold" data-tooltip="ZWEI.actor.secondary.damagethreshold">
+              <li>{{value}}</li>
+              <li>{{zhAdd value 6}}</li>
+              <li>{{zhAdd value 12}}</li>
+              <li>{{zhAdd value 18}}</li>
+            </ul>
+            {{/with}}
+          </div>
+
+          <div class="party-meter party-meter--peril">
+            <i class="ra ra-bleeding-eye"></i>
+            {{#with system.stats.secondaryAttributes.perilCurrent}}
+            <ul class="party-meter__tracker" data-tooltip="ZWEI.actor.secondary.peril">
+              <li data-step="5"
+                class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="4"
+                class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="3"
+                class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="2"
+                class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="1"
+                class="party-meter__tracker-item{{#if (gte value 1)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="0"
+                class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+            </ul>
+            {{/with}}
+
+            {{#with system.stats.secondaryAttributes.perilThreshold}}
+            <ul class="party-meter__threshold" data-tooltip="ZWEI.actor.secondary.perilthreshold">
+              <li>{{value}}</li>
+              <li>{{zhAdd value 6}}</li>
+              <li>{{zhAdd value 12}}</li>
+              <li>{{zhAdd value 18}}</li>
+            </ul>
+            {{/with}}
+          </div>
+
+          {{#with system.stats.secondaryAttributes.encumbrance}}
+          <div class="party-meter party-meter--encumbrance" aria-label="{{localize 'ZWEI.actor.secondary.encumbrance'}}"
+            data-toolip="{{localize 'ZWEI.actor.secondary.encumbrance'}}">
+            <i class="fas fa-sack"></i>
+            <meter class="{{ifThen (gt current value) 'exceeds-max' '' }}" value="{{current}}" min="0"
+              max="{{value}}"></meter>
+          </div>
+          {{/with}}
+        </header>
+
+        <main class="party-list__item__main">
+          <div class="party-list__item__main__block party-list__item__main__block--combat">
+            {{> (partial 'chip.hbs')
+            bemMod="attack"
+            value=system.stats.secondaryAttributes.dodge.value
+            icon="ra ra-player-dodge"
+            title="ZWEI.actor.secondary.dodge"
+            action="dodge"
+            label=system.stats.secondaryAttributes.dodge.associatedSkill}}
+            {{> (partial 'chip.hbs')
+            bemMod="attack"
+            value=system.stats.secondaryAttributes.parry.value
+            icon="ra ra-round-shield"
+            title="ZWEI.actor.secondary.parry"
+            action="parry"
+            label=system.stats.secondaryAttributes.parry.associatedSkill}}
+            {{> (partial 'chip.hbs')
+            bemMod="attack"
+            value=system.stats.secondaryAttributes.parry.value
+            icon="ra ra-eye-shield"
+            title="ZWEI.actor.skills.resolve"
+            action="skill"
+            label="Resolve"}}
+            {{> (partial 'chip.hbs')
+            bemMod="attack"
+            value=system.stats.secondaryAttributes.parry.value
+            icon="ra ra-heavy-shield"
+            title="ZWEI.actor.skills.toughness"
+            action="skill"
+            label="Toughness"}}
+            {{> (partial 'chip.hbs')
+            bemMod="movement"
+            title="ZWEI.actor.secondary.movement"
+            value=system.stats.secondaryAttributes.movement.current
+            icon="fa-person-walking"}}
+          </div>
+        </main>
+      </section>
+    </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <p class="empty">
+    No actors are currently in the party.
+  </p>
+  {{/if}}
+</section>
