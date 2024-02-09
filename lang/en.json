@@ -5,6 +5,7 @@
       "addToParty": "Add to Party",
       "removeFromParty": "Remove from Party",
       "distribute": {
+        "main": "Distribute",
         "rp": "Distribute RP",
         "corruption": "Distribute Corruption",
         "amount": "Amount",
@@ -17,7 +18,8 @@
           "rp": "Successfully distributed Reward Points",
           "corruption": "Successfully distributed Corruption"
         }
-      }
+      },
+      "nomembers": "No actors are currently in the party."
     }
   }
 }
