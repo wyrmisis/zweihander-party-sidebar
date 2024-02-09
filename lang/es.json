@@ -1,0 +1,25 @@
+{
+  "ZWEI": {
+    "partytab": {
+      "title": "Grupo",
+      "addToParty": "Añadir al grupo",
+      "removeFromParty": "Quitar del grupo",
+      "distribute": {
+        "main": "Repartir",
+        "rp": "Repartir PRs",
+        "corruption": "Repartir Corrupción",
+        "amount": "Cantidad",
+        "all": "Repartir a todos",
+        "empty": {
+          "selection": "No se puede repartir sin seleccionar a nadie del grupo",
+          "value": "No se puede repartir cero unidades a los miembros seleccionados"
+        },
+        "success": {
+          "rp": "Puntos de recompensa repartidos con éxito",
+          "corruption": "Corrupción repartida con éxito"
+        }
+      },
+      "nomembers": "No hay ningún actor en el grupo."
+    }
+  }
+}
