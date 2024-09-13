@@ -27,9 +27,25 @@
     }
   ],
   "compatibility": {
-    "minimum": 11,
-    "verified": 11,
-    "maximum": 11
+    "minimum": "11",
+    "verified": "12.331",
+    "maximum": "12"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "zweihander",
+        "type": "system",
+        "compatibility": {}
+      }
+    ],
+    "requires": [
+      {
+        "id": "lib-wrapper",
+        "type": "module",
+        "compatibility": {}
+      }
+    ]
   },
   "license": "LICENSE",
   "version": "auto-replaced",
