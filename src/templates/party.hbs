@@ -28,23 +28,23 @@
             <i class="fas fa-heart"></i>
             {{#with system.stats.secondaryAttributes.damageCurrent}}
             <ul class="party-meter__tracker" data-tooltip="ZWEI.actor.secondary.damage">
-              <li data-step="5"
-                class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
-              </li>
-              <li data-step="4"
-                class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
-              </li>
-              <li data-step="3"
-                class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
-              </li>
-              <li data-step="2"
-                class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
+              <li data-step="0"
+                class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
               </li>
               <li data-step="1"
                 class="party-meter__tracker-item{{#if (gte value 1)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="0"
-                class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
+              <li data-step="2"
+                class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="3"
+                class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="4"
+                class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="5"
+                class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
               </li>
             </ul>
             {{/with}}
@@ -62,23 +62,23 @@
             <i class="ra ra-bleeding-eye"></i>
             {{#with system.stats.secondaryAttributes.perilCurrent}}
             <ul class="party-meter__tracker" data-tooltip="ZWEI.actor.secondary.peril">
-              <li data-step="5"
-                class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
-              </li>
-              <li data-step="4"
-                class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
-              </li>
-              <li data-step="3"
-                class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
-              </li>
-              <li data-step="2"
-                class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
+              <li data-step="0"
+                class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
               </li>
               <li data-step="1"
                 class="party-meter__tracker-item{{#if (gte value 1)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="0"
-                class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
+              <li data-step="2"
+                class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="3"
+                class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="4"
+                class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
+              </li>
+              <li data-step="5"
+                class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
               </li>
             </ul>
             {{/with}}

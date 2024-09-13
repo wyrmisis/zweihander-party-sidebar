@@ -109,7 +109,7 @@
         background-color: var(--zh-clr-aqua);
       }
 
-      &:last-of-type {
+      &:first-of-type {
         border-color: var(--zh-clr-orange);
 
         &.party-meter__tracker-item--filled {
