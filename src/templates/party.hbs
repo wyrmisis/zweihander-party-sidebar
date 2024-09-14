@@ -94,10 +94,10 @@
           </div>
 
           {{#with system.stats.secondaryAttributes.encumbrance}}
-          <div class="party-meter party-meter--encumbrance" aria-label="{{localize 'ZWEI.actor.secondary.encumbrance'}}"
-            data-toolip="{{localize 'ZWEI.actor.secondary.encumbrance'}}">
+          <div class="party-meter party-meter--encumbrance" aria-label="{{localize 'ZWEI.actor.secondary.encumbranceLimit'}}"
+            data-toolip="{{localize 'ZWEI.actor.secondary.encumbranceLimit'}}">
             <i class="fas fa-sack"></i>
-            <meter class="{{ifThen (gt current value) 'exceeds-max' '' }}" value="{{current}}" min="0"
+            <meter title="{{localize 'ZWEI.actor.secondary.encumbranceLimit'}}" class="{{ifThen (gt current value) 'exceeds-max' '' }}" value="{{current}}" min="0"
               max="{{value}}"></meter>
           </div>
           {{/with}}
