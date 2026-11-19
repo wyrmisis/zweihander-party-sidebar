@@ -8,10 +8,10 @@ import {
 } from '../helpers/party-membership.mjs';
 
 /**
- * Register the Party tab with the core Sidebar, right after the Combat tab.
+ * Register the Party tab with the core Sidebar, right after the Actors tab.
  *
  * Sidebar.TABS is an ordered record, so to place the tab we remove everything
- * after `combat`, add ours, then restore the rest in their original order.
+ * after `actors`, add ours, then restore the rest in their original order.
  */
 const registerPartyTab = () => {
   const { Sidebar } = foundry.applications.sidebar;
@@ -20,8 +20,8 @@ const registerPartyTab = () => {
 
   const tabs = Sidebar.TABS;
   const names = Object.keys(tabs);
-  const combatIdx = names.indexOf('combat');
-  const trailing = (combatIdx === -1 ? [] : names.slice(combatIdx + 1))
+  const actorsIdx = names.indexOf('actors');
+  const trailing = (actorsIdx === -1 ? [] : names.slice(actorsIdx + 1))
     .map((name) => [name, tabs[name]]);
 
   for (const [name] of trailing) delete tabs[name];

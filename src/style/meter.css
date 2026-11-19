@@ -1,13 +1,23 @@
+/*
+ * Damage, Peril and Encumbrance/Actions share one 3-column grid
+ * (icon | tracker | thresholds) so their columns line up across rows:
+ * the Encumbrance bar ends where the tracker squares end, and the Action
+ * Points squares sit under the four thresholds.
+ */
+.party-sidebar .party-vitals {
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  justify-content: start;
+  column-gap: .75em;
+  row-gap: 2px;
+}
+
 .party-sidebar .party-meter {
   display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: .75em;
-  grid-template-columns: max-content 1fr max-content;
   height: 1.6em;
-
-  &:has(meter) {
-    grid-template-columns: max-content 1fr;
-  }
 
   --party-sidebar-meter-color: var(--party-sidebar-meter-color-default);
 
@@ -135,6 +145,24 @@
         opacity: 0.65;
         font-size: .8em;
       }
+    }
+  }
+}
+
+/* Action Points: same squares as Damage/Peril, but they fill the thresholds column */
+.party-sidebar .party-meter .party-meter__tracker--actions {
+  grid-template-columns: repeat(var(--ap-max, 3), minmax(0, 1fr));
+  gap: .25em;
+  width: 100%;
+  /* contribute no width to the shared column; the thresholds above decide it */
+  inline-size: 0;
+  min-inline-size: 100%;
+
+  .party-meter__tracker-item {
+    border-color: var(--zh-clr-yellow);
+
+    &.party-meter__tracker-item--filled {
+      background-color: var(--zh-clr-yellow);
     }
   }
 }

@@ -1,6 +1,5 @@
 import { templatePath, partialPath } from "../config/constants.mjs";
 import { isInParty, removeFromParty } from '../helpers/party-membership.mjs';
-import { getSkillChance } from '../helpers/skill-chance.mjs';
 import DistributeRP from './DistributeRP.mjs';
 import DistributeCorruption from './DistributeCorruption.mjs';
 
@@ -48,7 +47,8 @@ export default class PartySidebar extends HandlebarsApplicationMixin(AbstractSid
       openSheet: PartySidebar.#onOpenPartyMemberSheet,
       dodge: PartySidebar.#onDodge,
       parry: PartySidebar.#onParry,
-      skill: PartySidebar.#onSkill,
+      madness: PartySidebar.#onMadness,
+      setActions: PartySidebar.#onSetActions,
       setDamage: PartySidebar.#onSetDamage,
       setPeril: PartySidebar.#onSetPeril
     }
@@ -96,6 +96,22 @@ export default class PartySidebar extends HandlebarsApplicationMixin(AbstractSid
   /** @type {DragDrop[]} */
   #dragDrop = this.#createDragDropHandlers();
 
+  /**
+   * Action Points as a row of squares: `max` steps, the first `value` of them filled.
+   * @param {Actor} actor
+   */
+  static #actionsContext(actor) {
+    const { value = 0, max = 0 } = actor.system.stats.actionPoints ?? {};
+    return {
+      value,
+      max,
+      steps: Array.from({ length: Math.max(0, max) }, (_, i) => ({
+        step: i + 1,
+        filled: i < value
+      }))
+    };
+  }
+
   get partyMembers() {
     return game.actors.filter(a => a.getFlag(game.system.id, 'party'));
   }
@@ -109,8 +125,7 @@ export default class PartySidebar extends HandlebarsApplicationMixin(AbstractSid
       name: actor.name,
       img: actor.img,
       system: actor.system,
-      resolve: getSkillChance(actor, 'Resolve'),
-      toughness: getSkillChance(actor, 'Toughness')
+      actions: PartySidebar.#actionsContext(actor)
     }));
     return context;
   }
@@ -298,11 +313,26 @@ export default class PartySidebar extends HandlebarsApplicationMixin(AbstractSid
   }
 
   /** @this {PartySidebar} */
-  static #onSkill(_event, target) {
+  static #onMadness(_event, target) {
     memberFromElement(target)?.sheet?._onRollSkill(
       asSheetEvent(target),
-      CONFIG.ZWEI.testTypes.skill
+      CONFIG.ZWEI.testTypes.madness
     );
+  }
+
+  /**
+   * Click a square to set Action Points to that step; clicking the last
+   * filled square empties it, so the counter can also reach 0.
+   * @this {PartySidebar}
+   */
+  static async #onSetActions(_event, target) {
+    const actor = memberFromElement(target);
+    if (!actor) return;
+    const step = Number(target.dataset.step);
+    const current = actor.system.stats.actionPoints.value;
+    await actor.update({
+      'system.stats.actionPoints.value': current === step ? step - 1 : step
+    });
   }
 
   /** @this {PartySidebar} */

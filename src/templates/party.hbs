@@ -18,6 +18,7 @@
       <section>
         <header class="party-list__item__header">
           <h4 class="entry-name document-name" data-action="openSheet">{{name}}</h4>
+          <div class="party-vitals">
           <div class="party-meter party-meter--damage">
             <i class="fas fa-heart"></i>
             {{#with system.stats.secondaryAttributes.damageCurrent}}
@@ -87,14 +88,24 @@
             {{/with}}
           </div>
 
-          {{#with system.stats.secondaryAttributes.encumbrance}}
-          <div class="party-meter party-meter--encumbrance" aria-label="{{localize 'ZWEI.actor.secondary.encumbrance'}}"
-            data-tooltip="{{localize 'ZWEI.actor.secondary.encumbrance'}}">
-            <i class="fas fa-sack"></i>
+          <div class="party-meter party-meter--encumbrance">
+            {{#with system.stats.secondaryAttributes.encumbrance}}
+            <i class="fas fa-sack" aria-label="{{localize 'ZWEI.actor.secondary.encumbrance'}}"
+              data-tooltip="{{localize 'ZWEI.actor.secondary.encumbrance'}}"></i>
             <meter class="{{ifThen (gt current value) 'exceeds-max' '' }}" value="{{current}}" min="0"
-              max="{{value}}"></meter>
+              max="{{value}}" data-tooltip="{{localize 'ZWEI.actor.secondary.encumbrance'}}"></meter>
+            {{/with}}
+            {{#if actions.max}}
+            <ul class="party-meter__tracker party-meter__tracker--actions" style="--ap-max: {{actions.max}}"
+              data-tooltip="{{localize 'ZWEI.combat.ap'}}: {{actions.value}}/{{actions.max}}">
+              {{#each actions.steps}}
+              <li data-action="setActions" data-step="{{step}}"
+                class="party-meter__tracker-item{{#if filled}} party-meter__tracker-item--filled{{/if}}"></li>
+              {{/each}}
+            </ul>
+            {{/if}}
           </div>
-          {{/with}}
+          </div>
         </header>
 
         <main class="party-list__item__main">
@@ -115,18 +126,11 @@
             label=system.stats.secondaryAttributes.parry.associatedSkill}}
             {{> (partial 'chip.hbs')
             bemMod="attack"
-            value=resolve
-            icon="ra ra-eye-shield"
-            title="ZWEI.partytab.resolve"
-            action="skill"
-            label="Resolve"}}
-            {{> (partial 'chip.hbs')
-            bemMod="attack"
-            value=toughness
-            icon="ra ra-heavy-shield"
-            title="ZWEI.partytab.toughness"
-            action="skill"
-            label="Toughness"}}
+            value=system.stats.secondaryAttributes.madness.value
+            icon="ra ra-player-despair"
+            title="ZWEI.actor.secondary.madness"
+            action="madness"
+            label=system.stats.secondaryAttributes.madness.associatedSkill}}
             {{> (partial 'chip.hbs')
             bemMod="movement"
             title="ZWEI.actor.secondary.movement"

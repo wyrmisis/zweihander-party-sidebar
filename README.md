@@ -11,7 +11,8 @@ This module adds a new tab to Foundry's right sidebar that displays the followin
 - Damage (and thresholds)
 - Peril (and thresholds)
 - Dodge and Parry chance (and buttons to roll them)
-- Toughness and Resolve (and buttons to roll them)
+- Madness chance (and a button to roll it)
+- Action Points (click the squares to spend/recover them)
 - Encumbrance and movement speed
 
 You have two options for adding a Player Character to the party:
