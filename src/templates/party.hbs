@@ -1,16 +1,10 @@
-<section class="{{cssClass}}" id="{{cssId}}" data-tab="{{tabName}}">
-  <style>
-    #sidebar nav a {
-      --sidebar-tab-width: 22px;
-      font-size: .9em;
-    }
-  </style>
-  {{#if user.isGM}}
+<div class="party-sidebar__body">
+  {{#if isGM}}
   <header class="party-header">
     <div class="header-actions action-buttons flexrow">
-      <button type="button" data-action="add-rp"><i class="fas fa-plus"></i> {{localize
+      <button type="button" data-action="addRp"><i class="fas fa-plus"></i> {{localize
         "ZWEI.partytab.distribute.rp"}}</button>
-      <button type="button" data-action="add-corruption"><i class="fas fa-plus"></i> {{localize
+      <button type="button" data-action="addCorruption"><i class="fas fa-plus"></i> {{localize
         "ZWEI.partytab.distribute.corruption"}}</button>
     </div>
   </header>
@@ -19,31 +13,31 @@
   <ul class="party-list">
     {{#each party}}
     <li class="party-list__item" data-entry-id="{{id}}">
-      <img src="{{img}}" class="thumbnail" alt="" />
+      <img src="{{img}}" class="thumbnail" alt="" data-action="openSheet" />
 
       <section>
         <header class="party-list__item__header">
-          <h4 class="entry-name document-name">{{name}}</h4>
+          <h4 class="entry-name document-name" data-action="openSheet">{{name}}</h4>
           <div class="party-meter party-meter--damage">
             <i class="fas fa-heart"></i>
             {{#with system.stats.secondaryAttributes.damageCurrent}}
             <ul class="party-meter__tracker" data-tooltip="ZWEI.actor.secondary.damage">
-              <li data-step="0"
+              <li data-action="setDamage" data-step="0"
                 class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="1"
+              <li data-action="setDamage" data-step="1"
                 class="party-meter__tracker-item{{#if (gte value 1)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="2"
+              <li data-action="setDamage" data-step="2"
                 class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="3"
+              <li data-action="setDamage" data-step="3"
                 class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="4"
+              <li data-action="setDamage" data-step="4"
                 class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="5"
+              <li data-action="setDamage" data-step="5"
                 class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
               </li>
             </ul>
@@ -62,22 +56,22 @@
             <i class="ra ra-bleeding-eye"></i>
             {{#with system.stats.secondaryAttributes.perilCurrent}}
             <ul class="party-meter__tracker" data-tooltip="ZWEI.actor.secondary.peril">
-              <li data-step="0"
+              <li data-action="setPeril" data-step="0"
                 class="party-meter__tracker-item party-member__tracker-item--depleted{{#if (lte value 0)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="1"
+              <li data-action="setPeril" data-step="1"
                 class="party-meter__tracker-item{{#if (gte value 1)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="2"
+              <li data-action="setPeril" data-step="2"
                 class="party-meter__tracker-item{{#if (gte value 2)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="3"
+              <li data-action="setPeril" data-step="3"
                 class="party-meter__tracker-item{{#if (gte value 3)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="4"
+              <li data-action="setPeril" data-step="4"
                 class="party-meter__tracker-item{{#if (gte value 4)}} party-meter__tracker-item--filled{{/if}}">
               </li>
-              <li data-step="5"
+              <li data-action="setPeril" data-step="5"
                 class="party-meter__tracker-item{{#if (gte value 5)}} party-meter__tracker-item--filled{{/if}}">
               </li>
             </ul>
@@ -95,7 +89,7 @@
 
           {{#with system.stats.secondaryAttributes.encumbrance}}
           <div class="party-meter party-meter--encumbrance" aria-label="{{localize 'ZWEI.actor.secondary.encumbrance'}}"
-            data-toolip="{{localize 'ZWEI.actor.secondary.encumbrance'}}">
+            data-tooltip="{{localize 'ZWEI.actor.secondary.encumbrance'}}">
             <i class="fas fa-sack"></i>
             <meter class="{{ifThen (gt current value) 'exceeds-max' '' }}" value="{{current}}" min="0"
               max="{{value}}"></meter>
@@ -121,16 +115,16 @@
             label=system.stats.secondaryAttributes.parry.associatedSkill}}
             {{> (partial 'chip.hbs')
             bemMod="attack"
-            value=system.stats.secondaryAttributes.parry.value
+            value=resolve
             icon="ra ra-eye-shield"
-            title="ZWEI.actor.skills.resolve"
+            title="ZWEI.partytab.resolve"
             action="skill"
             label="Resolve"}}
             {{> (partial 'chip.hbs')
             bemMod="attack"
-            value=system.stats.secondaryAttributes.parry.value
+            value=toughness
             icon="ra ra-heavy-shield"
-            title="ZWEI.actor.skills.toughness"
+            title="ZWEI.partytab.toughness"
             action="skill"
             label="Toughness"}}
             {{> (partial 'chip.hbs')
@@ -149,4 +143,4 @@
     {{localize 'ZWEI.partytab.nomembers'}}
   </p>
   {{/if}}
-</section>
+</div>

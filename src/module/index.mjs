@@ -12,6 +12,4 @@ Hooks.once('devModeReady', () => {
 /*  Init Hooks                                  */
 /* -------------------------------------------- */
 import './hooks/init';
-import './hooks/setup';
 import './hooks/updateActor';
-

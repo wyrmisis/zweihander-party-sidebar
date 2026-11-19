@@ -1,41 +1,190 @@
-import { templatePath } from "../config/constants.mjs";
-import { isInParty, addToParty, removeFromParty } from '../helpers/party-membership.mjs';
+import { templatePath, partialPath } from "../config/constants.mjs";
+import { isInParty, removeFromParty } from '../helpers/party-membership.mjs';
+import { getSkillChance } from '../helpers/skill-chance.mjs';
 import DistributeRP from './DistributeRP.mjs';
 import DistributeCorruption from './DistributeCorruption.mjs';
 
-export default class PartySidebar extends SidebarTab {
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "party",
-      template: `${templatePath}/party.hbs`,
-      title: "ZWEI.partytab.title",
-      dragDrop: [{ dragSelector: ".party-list__item", dropSelector: ".party-list" }],
-      contextMenuSelector: ".party-list__item",
-    });
-  }
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { AbstractSidebarTab } = foundry.applications.sidebar;
+const { DragDrop, TextEditor } = foundry.applications.ux;
 
-  static DistributeRPApp = new DistributeRP();
-  static DistributeCorruptionApp = new DistributeCorruption();
+/**
+ * Build the minimal "event" the Zweihander actor sheet expects in `_onRollSkill`.
+ *
+ * ApplicationV2 action handlers receive the clicked element as `target`, but the
+ * system's sheet handler reads `event.currentTarget.dataset.label`, which in a
+ * delegated listener would be the application root instead.
+ *
+ * @param {HTMLElement} target - The `[data-action]` element that was clicked.
+ */
+const asSheetEvent = (target) => ({
+  currentTarget: target,
+  target,
+  preventDefault: () => {},
+  stopPropagation: () => {},
+  stopImmediatePropagation: () => {}
+});
+
+/** @returns {Actor|undefined} The party member the clicked element belongs to. */
+const memberFromElement = (element) => {
+  const entryId = element?.closest('[data-entry-id]')?.dataset.entryId;
+  return game.actors.get(entryId);
+};
+
+export default class PartySidebar extends HandlebarsApplicationMixin(AbstractSidebarTab) {
+  /** @override */
+  static tabName = "party";
+
+  /** @override */
+  static DEFAULT_OPTIONS = {
+    classes: ["party-sidebar"],
+    window: {
+      title: "ZWEI.partytab.title",
+      icon: "fa-solid fa-users"
+    },
+    actions: {
+      addRp: PartySidebar.#onOpenRPApp,
+      addCorruption: PartySidebar.#onOpenCorruptionApp,
+      openSheet: PartySidebar.#onOpenPartyMemberSheet,
+      dodge: PartySidebar.#onDodge,
+      parry: PartySidebar.#onParry,
+      skill: PartySidebar.#onSkill,
+      setDamage: PartySidebar.#onSetDamage,
+      setPeril: PartySidebar.#onSetPeril
+    }
+  };
+
+  /** @override */
+  static PARTS = {
+    party: {
+      template: `${templatePath}/party.hbs`,
+      templates: [`${partialPath}/chip.hbs`],
+      scrollable: [".party-list"]
+    }
+  };
 
   static tooltip = "ZWEI.partytab.title";
-  static icon = "fas fa-users";
+  static icon = "fa-solid fa-users";
 
+  /* -------------------------------------------- */
+  /*  Child apps                                  */
+  /* -------------------------------------------- */
 
-  /** @override */
-  async getData(options = {}) {
-    let context = await super.getData(options);
-    context.party = this.partyMembers;
-    return context;
+  // Created lazily: constructing an ApplicationV2 while the module is still
+  // being evaluated (before `init`) is needlessly early.
+  static #distributeRP;
+  static #distributeCorruption;
+
+  static get DistributeRPApp() {
+    return (PartySidebar.#distributeRP ??= new DistributeRP());
   }
+
+  static get DistributeCorruptionApp() {
+    return (PartySidebar.#distributeCorruption ??= new DistributeCorruption());
+  }
+
+  /** Re-render the Distribute dialogs, but only if they are currently open. */
+  static refreshDistributeApps() {
+    if (PartySidebar.#distributeRP?.rendered) PartySidebar.#distributeRP.render();
+    if (PartySidebar.#distributeCorruption?.rendered) PartySidebar.#distributeCorruption.render();
+  }
+
+  /* -------------------------------------------- */
+  /*  Rendering                                   */
+  /* -------------------------------------------- */
+
+  /** @type {DragDrop[]} */
+  #dragDrop = this.#createDragDropHandlers();
 
   get partyMembers() {
     return game.actors.filter(a => a.getFlag(game.system.id, 'party'));
   }
 
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    context.isGM = game.user.isGM;
+    context.party = this.partyMembers.map(actor => ({
+      id: actor.id,
+      name: actor.name,
+      img: actor.img,
+      system: actor.system,
+      resolve: getSkillChance(actor, 'Resolve'),
+      toughness: getSkillChance(actor, 'Toughness')
+    }));
+    return context;
+  }
+
+  /** @override */
+  async _onFirstRender(context, options) {
+    await super._onFirstRender(context, options);
+    this._createContextMenu(
+      this._getEntryContextOptions.bind(this),
+      ".party-list__item"
+    );
+  }
+
+  /** @override */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    this.#dragDrop.forEach(d => d.bind(this.element));
+  }
+
+  /**
+   * Get the set of ContextMenu options which should be used for party members
+   * @returns {foundry.ContextMenuEntry[]}
+   * @protected
+   */
+  _getEntryContextOptions() {
+    return [
+      {
+        label: 'ZWEI.partytab.removeFromParty',
+        icon: '<i class="fa-solid fa-users-slash"></i>',
+        visible: (element) => game.user.isGM && isInParty(element.dataset.entryId),
+        onClick: (_event, element) => removeFromParty(element.dataset.entryId)
+      }
+    ];
+  }
+
+  /* -------------------------------------------- */
+  /*  Drag & drop                                 */
+  /* -------------------------------------------- */
+
+  #createDragDropHandlers() {
+    return [{
+      dragSelector: ".party-list__item",
+      // The whole tab is a drop target so the very first actor can be dropped
+      // while the party (and therefore the list) is still empty.
+      dropSelector: ".party-sidebar__body"
+    }].map(config => new DragDrop.implementation({
+      ...config,
+      permissions: {
+        dragstart: this._canDragStart.bind(this),
+        drop: this._canDragDrop.bind(this)
+      },
+      callbacks: {
+        dragstart: this._onDragStart.bind(this),
+        drop: this._onDrop.bind(this)
+      }
+    }));
+  }
+
+  /** @protected */
+  _canDragStart(_selector) {
+    return game.user.isGM;
+  }
+
+  /** @protected */
+  _canDragDrop(_selector) {
+    return game.user.isGM;
+  }
+
+  /**
+   * @param {DragEvent} event - The drag event fired when starting to drag a party member
+   * @protected
+   */
   _onDragStart(event) {
-    const entryId = event.target.closest('[data-entry-id]').dataset.entryId;
-    const actor = game.actors.get(entryId);
+    const actor = memberFromElement(event.target);
     if (!actor) return;
     const dragData = actor.toDragData();
     if (!dragData) return;
@@ -43,8 +192,8 @@ export default class PartySidebar extends SidebarTab {
   }
 
   /**
-   * @override
-   * @param  {DragEvent} event - The drag event fired when dropping an item onto the party list 
+   * @param {DragEvent} event - The drag event fired when dropping an item onto the party list
+   * @protected
    */
   async _onDrop(event) {
     const typesAllowed = [
@@ -57,6 +206,8 @@ export default class PartySidebar extends SidebarTab {
       if (
         doc &&
         doc.documentName === 'Actor' &&
+        doc.type === 'character' &&
+        !doc.pack &&
         !isInParty(doc.id)
       ) {
         doc.setFlag(game.system.id, 'party', true);
@@ -65,13 +216,13 @@ export default class PartySidebar extends SidebarTab {
     }
 
     const performAddItemToPartyMember = (actor, item) => {
-      if (item.documentName !== 'Item') return;
-      actor.createEmbeddedDocuments('Item', [item]);
+      if (!actor || item?.documentName !== 'Item') return;
+      actor.createEmbeddedDocuments('Item', [item.toObject()]);
       return true;
     }
 
     const targetId = event.target.closest('[data-entry-id]')?.dataset.entryId;
-    const { type, uuid } = TextEditor.getDragEventData(event);
+    const { type, uuid } = TextEditor.implementation.getDragEventData(event);
 
     // Kick out things that aren't actors or embedded into actors
     if (!typesAllowed.includes(type)) return;
@@ -82,18 +233,19 @@ export default class PartySidebar extends SidebarTab {
 
     // This is the latest we can wait to fetch the dropped document
     const sourceDoc = await fromUuid(uuid);
+    if (!sourceDoc) return;
 
     // If it's not a character, don't allow it to join the party
     // @todo - Maybe this should change in the system
     //         (for mounts, pets, beastfolk, etc)?
-    if (type === 'Actor' && (!sourceDoc || sourceDoc?.type !== 'character')) return;
+    if (type === 'Actor' && sourceDoc.type !== 'character') return;
 
     if (performAddToParty(sourceDoc)) return;
 
     // This is the latest we can wait to fetch the target document
     const targetDoc = game.actors.get(targetId);
 
-    if (performAddItemToPartyMember(targetDoc, sourceDoc)) return true;
+    if (performAddItemToPartyMember(targetDoc, sourceDoc)) return;
 
     if (type === 'Folder') {
       sourceDoc.contents.forEach(doc => {
@@ -107,107 +259,63 @@ export default class PartySidebar extends SidebarTab {
           return;
         }
       })
-      return;
     }
   }
 
-  /**
-   * @todo - This app needs built
-   */
-  #openRPApp() {
-    PartySidebar.DistributeRPApp.render(true);
-  }
-  /**
-   * @todo - This app needs built
-   */
-  #openCorruptionApp() {
-    PartySidebar.DistributeCorruptionApp.render(true);
+  /* -------------------------------------------- */
+  /*  Actions                                     */
+  /* -------------------------------------------- */
+
+  /** @this {PartySidebar} */
+  static #onOpenRPApp() {
+    PartySidebar.DistributeRPApp.render({ force: true });
   }
 
-  #openPartyMemberSheet(event) {
-    const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
-    game.actors.get(entryId)?.sheet?.render(true);
+  /** @this {PartySidebar} */
+  static #onOpenCorruptionApp() {
+    PartySidebar.DistributeCorruptionApp.render({ force: true });
   }
 
-  #doDodge(event) {
-    const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
-    game.actors.get(entryId)?.sheet?._onRollSkill(
-      event,
+  /** @this {PartySidebar} */
+  static #onOpenPartyMemberSheet(_event, target) {
+    memberFromElement(target)?.sheet?.render({ force: true });
+  }
+
+  /** @this {PartySidebar} */
+  static #onDodge(_event, target) {
+    memberFromElement(target)?.sheet?._onRollSkill(
+      asSheetEvent(target),
       CONFIG.ZWEI.testTypes.dodge
     );
   }
 
-  #doParry(event) {
-    const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
-    game.actors.get(entryId)?.sheet?._onRollSkill(
-      event,
-      CONFIG.ZWEI.testTypes.dodge
+  /** @this {PartySidebar} */
+  static #onParry(_event, target) {
+    memberFromElement(target)?.sheet?._onRollSkill(
+      asSheetEvent(target),
+      CONFIG.ZWEI.testTypes.parry
     );
   }
 
-  #doSkill(event) {
-    const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
-    game.actors.get(entryId)?.sheet?._onRollSkill(
-      event,
+  /** @this {PartySidebar} */
+  static #onSkill(_event, target) {
+    memberFromElement(target)?.sheet?._onRollSkill(
+      asSheetEvent(target),
       CONFIG.ZWEI.testTypes.skill
     );
   }
 
-  async #setDamage(event) {
-    const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
-    const { step } = event.target.dataset;
-    await game.actors.get(entryId)?.update({
-      'system.stats.secondaryAttributes.damageCurrent.value': step
+  /** @this {PartySidebar} */
+  static async #onSetDamage(_event, target) {
+    await memberFromElement(target)?.update({
+      'system.stats.secondaryAttributes.damageCurrent.value': Number(target.dataset.step)
     });
   }
 
-  async #setPeril(event) {
-    const { entryId } = event.target?.closest('[data-entry-id]')?.dataset;
-    const { step } = event.target.dataset;
-    await game.actors.get(entryId)?.update({
-      'system.stats.secondaryAttributes.perilCurrent.value': step
+  /** @this {PartySidebar} */
+  static async #onSetPeril(_event, target) {
+    await memberFromElement(target)?.update({
+      'system.stats.secondaryAttributes.perilCurrent.value': Number(target.dataset.step)
     });
-  }
-
-  /**
-   * @todo Set up for non-GM use
-   * @override
-   * */
-  activateListeners(html) {
-    super.activateListeners(html);
-
-    html.find("[data-action='add-rp']").click(this.#openRPApp.bind(this));
-    html.find("[data-action='add-corruption']").click(this.#openCorruptionApp.bind(this));
-    html.find('.thumbnail, .entry-name').click(
-      this.#openPartyMemberSheet.bind(this)
-    );
-    html.find('[data-action="dodge"]').click(this.#doDodge.bind(this));
-    html.find('[data-action="parry"]').click(this.#doParry.bind(this));
-    html.find('.party-meter--damage [data-step]').click(this.#setDamage.bind(this));
-    html.find('.party-meter--peril [data-step]').click(this.#setPeril.bind(this));
-
-    this._contextMenu(html);
-  }
-
-  /** @override */
-  _contextMenu(html) {
-    ContextMenu.create(this, html, this.options.contextMenuSelector, this._getEntryContextOptions());
-  }
-
-  /**
-   * Get the set of ContextMenu options which should be used for party members
-   * @returns {object[]}   The Array of contextaction passed to the ContextMenu instance
-   * @protected
-   */
-  _getEntryContextOptions() {
-
-    return [
-      {
-        name: 'ZWEI.partytab.removeFromParty',
-        icon: '<i class="fa-light fa-users"></i>',
-        condition: (node) => game.user.isGM && isInParty(node.data('entry-id')) === true,
-        callback: (node) => game.user.isGM && removeFromParty(node.data('entry-id'))
-      }
-    ]
   }
 }

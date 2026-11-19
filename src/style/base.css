@@ -6,7 +6,15 @@
   overflow-x: hidden;
   overflow-y: auto;
 
-  &[data-tab].active {
+  /* v13+ toggles tabs with `.active`; keep the tab a flex column when shown */
+  &.active {
     display: flex;
+  }
+
+  .party-sidebar__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
 }

@@ -19,7 +19,9 @@
           "corruption": "Successfully distributed Corruption"
         }
       },
-      "nomembers": "No actors are currently in the party."
+      "nomembers": "No actors are currently in the party.",
+      "resolve": "Resolve",
+      "toughness": "Toughness"
     }
   }
 }

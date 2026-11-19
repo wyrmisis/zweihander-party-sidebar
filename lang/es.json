@@ -19,7 +19,9 @@
           "corruption": "Corrupción repartida con éxito"
         }
       },
-      "nomembers": "No hay ningún actor en el grupo."
+      "nomembers": "No hay ningún actor en el grupo.",
+      "resolve": "Resolve",
+      "toughness": "Toughness"
     }
   }
 }

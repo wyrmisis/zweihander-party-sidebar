@@ -27,29 +27,25 @@
     }
   ],
   "compatibility": {
-    "minimum": "11",
-    "verified": "12.331",
-    "maximum": "12"
+    "minimum": "14",
+    "verified": "14.370",
+    "maximum": "14"
   },
   "relationships": {
     "systems": [
       {
         "id": "zweihander",
         "type": "system",
-        "compatibility": {}
-      }
-    ],
-    "requires": [
-      {
-        "id": "lib-wrapper",
-        "type": "module",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "5.8.3",
+          "verified": "5.8.3"
+        }
       }
     ]
   },
   "license": "LICENSE",
-  "version": "auto-replaced",
-  "url": "auto-replaced",
-  "manifest": "auto-replaced",
-  "download": "auto-replaced"
+  "version": "1.0",
+  "url": "https://github.com/lozanoje/zweihander-party-sidebar",
+  "manifest": "https://raw.githubusercontent.com/lozanoje/zweihander-party-sidebar/main/module.json",
+  "download": "https://github.com/lozanoje/zweihander-party-sidebar/archive/main.zip"
 }

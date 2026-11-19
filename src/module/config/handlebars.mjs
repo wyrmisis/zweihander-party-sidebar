@@ -1,28 +1,27 @@
-import { partialPath, templatePath } from "./constants.mjs";
+import { partialPath } from "./constants.mjs";
 
-const prepareHandlebars = async () => {
+/**
+ * Register the Handlebars helpers used by this module's templates.
+ *
+ * Templates themselves are no longer pre-loaded here: ApplicationV2 loads every
+ * template declared in a part's `template` / `templates` entries on first render.
+ */
+const prepareHandlebars = () => {
   Handlebars.registerHelper(
     'partial',
     (path) => `${partialPath}/${path}`
-  )
+  );
 
-  Handlebars.registerHelper('gt', (a, b) => a > b)
-  Handlebars.registerHelper('gte', (a, b) => a >= b)
-  Handlebars.registerHelper('lte', (a, b) => a <= b)
+  // Foundry core ships comparison helpers (gt, gte, lte...) since v13. Only
+  // register our own as a fallback so we never shadow the core implementation.
+  const fallbacks = {
+    gt: (a, b) => a > b,
+    gte: (a, b) => a >= b,
+    lte: (a, b) => a <= b,
+  };
 
-  Handlebars.registerHelper(
-    'signed',
-    (value) => {
-      if (typeof value !== 'number') throw new TypeError('The `signed` helper must be called with a numeric value');
-      return (value < 0) ? value : `+${value}`;
-    }
-  )
-
-  const templates = await loadTemplates([
-    `${templatePath}/party.hbs`,
-    `${templatePath}/distribute.hbs`,
-    `${partialPath}/chip.hbs`
-  ]);
+  for (const [name, fn] of Object.entries(fallbacks))
+    if (!Handlebars.helpers[name]) Handlebars.registerHelper(name, fn);
 }
 
 export default prepareHandlebars;
